@@ -6,7 +6,7 @@
 - stratums 높아질수록 정확도 낮아지며 통상 stratum 1은 atomic clock (원자 시계)를 뜻함. 원자시계를 Source로부터 순차적으로 NTP 동기화가 이루어지는 경우, Stratum은 1씩 증가함.
 
   (여기서 말하는 시간은 GPS시간이며 통상적으로 사용하는 UTC시간에 비해 18초 느림. 
-  매년 12월 31일 도는 1월 30일에 Bureau International des Poids et Mesures (BIPM) 라는 국제 도량형국에서  Leap second를 적용하여 GPS와 UTC의 시간오차를 결정함.
+  매년 12월 31일 또는 1월 30일에 Bureau International des Poids et Mesures (BIPM) 라는 국제 도량형국에서  Leap second를 적용하여 GPS와 UTC의 시간오차를 결정함.
   해당 작업 수행하는 경우, International Earth Rotation and Reference Systems Service 라는 자전 관련 국제기구에 6개월 전 사전 고지 진행.
  
 ## NTP 용어 설명
