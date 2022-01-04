@@ -4,8 +4,10 @@
 - 안전성 stability (일정한 frequency유지) / 정확도 accuracy (표준 gps시간과의 차이의 정도) / 정밀도 precision (안전성, 정확도의 양이 일정하게 유지되는지)를 기준으로 NTP에 대한 평가가 가능하다
 
 - stratums 높아질수록 정확도 낮아지며 통상 stratum 1은 atomic clock (원자 시계)를 뜻함. 원자시계를 Source로부터 순차적으로 NTP 동기화가 이루어지는 경우, Stratum은 1씩 증가함.
+
   (여기서 말하는 시간은 GPS시간이며 통상적으로 사용하는 UTC시간에 비해 18초 느림. 
-  매년 12월 31일 도는 1월 30일에 Bureau International des Poids et Mesures (BIPM) 라는 국제 도량형국에서  Leap second를 적용하여 GPS와 UTC의 시간오차를 결정함. 이 작업을 수행하는 경우, International Earth Rotation and Reference Systems Service 라는 자전 관련 국제기구에 6개월 전 고지르 함.
+  매년 12월 31일 도는 1월 30일에 Bureau International des Poids et Mesures (BIPM) 라는 국제 도량형국에서  Leap second를 적용하여 GPS와 UTC의 시간오차를 결정함.
+  해당 작업 수행하는 경우, International Earth Rotation and Reference Systems Service 라는 자전 관련 국제기구에 6개월 전 사전 고지 진행.
  
 ## NTP 용어 설명
 - **NTP Stratum model** : 0~15까지 있으며 device's distance to the reference clock을 뜻함 (a representation of the hierarchy of time servers in an NTP network) Stratum값이 올라갈수록 timing accuracy와 stability는 안좋아짐 (staratum0은 GPS antenna와의 소통이므로 cesium atomic clock의 정확성 필요함 : Primary Reference Clock)
@@ -37,8 +39,8 @@
 - hierarchy에 따라 작동함. client가 NTP message를 server로 보내고, server는 IP, port정보들 수정하고 checksum새로 계산하고 reply함, client는 reply를 process함 -> local time과 server time의 차이에 대해 필터링 작업 후 local time Update함 ( server여러개인 경우 best를 고름 : stratum과 synchronization time을 이용하는 Bellman-Ford distributed routing algorithm 활용) -> Update는 Section4의 알고리즘 이용 ->이로써 timekeeping accuracy 와 reliability를 유지한다
 
            host (local processor)와 peer (네트워크 연결된 remote processor)로 구분한다
-![image](https://user-images.githubusercontent.com/46197394/148010138-0c273b4c-1e4f-449a-9d2e-139176986f99.png)
-
+          
+          
 ## NTP 작동 방식
 - **Message 흐름** : NTP Client에서 request 보냄 / NTP Server에서 client가 보내는 message에 주소, 포트 등의 정보 채워서 보냄
 - **시간 교정 방법** : . reference timestamp . originate timestamp . receive timestamp . transmit timestamp  네개의 타임스탬프 사용함
@@ -64,7 +66,7 @@
 
 ## 1.2 RHEL 7.6의 NTP설정 방법
 
-chronyd 해제(ntpd와의 충돌로 ntpd종료 방비)  
+chronyd 해제(ntpd와의 충돌로 ntpd종료 방)  
 
     systemctl disable chronyd
 
@@ -121,10 +123,25 @@ SNTP supports unicast, multicast and anycast operating modes. In unicast mode, t
 ## 2.2 Windows의 NTP 설정 방법
 ### 2.2.1
 
-- Internet Time Settings에서 time server IP 입력 후 Update now 클릭
-- Windows Group Policy Configuration
-- Windows Services Configuration
-- Windows Task Scheduler
+**Internet Time Settings**에서 time server IP 입력 후 Update now 클릭 
+**Windows Group Policy Configuration** : gpedit.msc 통해 Local Group Policy Editor 들어간 후 Enable Global Configuration Settings / MaxPollInterval과 MinPollInterval 설정(이진법이므로 2를 설정할 경우 4초의 Interval가짐) / Enable Windows NTP client 후에 Configure Windows NTP client : NtpServer에 ‘NTP_SERVER_IP, 0x08’ 입력
+**Windows Services Configuration** : services.msc 통해 Windows Service 들어간 후 Windows Time의 Startup type을 ‘Automatic (Delayed Start)’로 변경 (Default : ‘Manual’)
+**Windows Task Scheduler** : Task Scheduler 들어간 후 Synchronize Time 클릭 후 ‘Disable’ 설정 / 
+
+w32time 재시작 : CMD 창에서 하단의 명령어 입력
+
+    net stop w32time
+    net start w32time
+    w32tm /resync
+
+w32time통한 동기화 및 상단의 설정이 정확히 설정되었는지 확인 : CMD 창에서 하단의 명령어 입력
+
+    w32tm /query /status
+    
+
+**시간 오차 확인 방법** : CMD 창에서 하단의 명령어 입력
+
+    w32tm /stripchart /dataonly /computer:NTP_SERVER_IP
 
 
 #### References
