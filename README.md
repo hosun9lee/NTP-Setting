@@ -146,16 +146,15 @@ w32time통한 동기화 및 상단의 설정이 정확히 설정되었는지 확
 *1분마다 강제 resync 명령어를 w32time에 보내는 방법** : (단, 이 명렁어가 담긴 txt파일을 windows time scheduler 가 실행해야함) 
 
     @echo off
+    :1
+    set "params=%*"
+    cd /d "%~dp0" && ( if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs" ) && fsutil dirty query %systemdrive% 1>nul 2>nul || (  echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/k cd ""%~sdp0"" && %~s0 %params%", "", "runas", 0 >> "%temp%\getadmin.vbs" && "%temp%\getadmin.vbs" && exit /B )
 
-   :1
-  set "params=%*"
-  cd /d "%~dp0" && ( if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs" ) && fsutil dirty query %systemdrive% 1>nul 2>nul || (  echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/k cd ""%~sdp0"" && %~s0 %params%", "", "runas", 0 >> "%temp%\getadmin.vbs" && "%temp%\getadmin.vbs" && exit /B )
+    w32tm /resync
+    timeout -t 60 /nobreak
+    goto 1
 
-  w32tm /resync
-
-  timeout -t 60 /nobreak
-
-  goto 1
+   
 
 
 #### References
